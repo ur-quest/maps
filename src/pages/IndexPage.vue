@@ -1,46 +1,53 @@
 <template>
     <div class="index-page">
       <SearchComponents/>
-      <MapComponent :map="map" :markers="[currentMarker]"/>
+      <MapComponent
+        :map="map"
+        :markers="[currentMarker]"
+        @on-map-click="onMapClick"
+      />
     </div>
 </template>
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { useMapStore } from 'stores/map-store';
-import { storeToRefs } from 'pinia';
+import { CurrentLocation, SearchLocation } from 'src/models/Location';
 import MapComponent from 'components/MapComponent.vue';
 import SearchComponents from 'components/SearchComponent.vue';
+import useMapStore from 'stores/map-store';
+import useLocationsStore from 'src/stores/locations-store';
+
+const mapStore = useMapStore();
+const locationsStore = useLocationsStore();
 
 const $q = useQuasar();
-const store = useMapStore();
-const { map, currentMarker } = storeToRefs(store);
 
-function success(pos):void {
-  const coordinates = {
-    lat: pos.coords.latitude,
-    lng: pos.coords.longitude,
-  };
+function foundLocation(pos):void {
+  const { latitude, longitude, accuracy } = pos.coords;
+  const currentLocation = new CurrentLocation({ latitude, longitude, accuracy });
 
-  store.setCoordinates(coordinates);
-  store.setZoom(15);
+  mapStore.setMapCenter(currentLocation.getInfo.position);
+  mapStore.setZoom(15);
 
-  if (pos.coords.accuracy < 20) {
-    store.setCurrentMarker({
-      position: coordinates,
-      icon: 'https://abrakadabra.fun/uploads/posts/2021-12/1640747246_17-abrakadabra-fun-p-znachok-geolokatsii-bez-fona-17.png',
-      clickable: false,
-      draggable: false,
-    });
+  if (accuracy < 50) {
+    locationsStore.setCurrentLocation(currentLocation.getInfo);
   }
 }
 
 function error(err):void {
-  console.log(err);
+  throw new Error(err);
 }
 
-if ($q.platform.is.desktop) {
+function onMapClick(event) {
+  const latitude = event.latLng.lat();
+  const longitude = event.latLng.lng();
+  const searchLocation = new SearchLocation({ latitude, longitude });
+  locationsStore.setSearchLocation(searchLocation.getInfo);
+  mapStore.setZoom(15);
+}
+
+if (!$q.platform.is.mobile) {
   window.navigator.geolocation
-    .watchPosition(success, error, { enableHighAccuracy: true });
+    .watchPosition(foundLocation, error, { enableHighAccuracy: true });
 }
 </script>
