@@ -1,14 +1,13 @@
 import { defineStore } from 'pinia';
 import { ILocation } from 'src/interfaces/ILocation';
 import { api } from 'src/boot/axios';
-import apiKey from 'src/helpers/apiKey';
 
-interface Store { currentLocation: ILocation | object, searchLocation: ILocation | object }
+interface Store { currentLocation: ILocation | null, searchLocation: ILocation | null }
 
 export default defineStore('locations', {
   state: ():Store => ({
-    currentLocation: {},
-    searchLocation: {},
+    currentLocation: null,
+    searchLocation: null,
   }),
 
   actions: {
@@ -21,7 +20,7 @@ export default defineStore('locations', {
       const latlng = `${marker.position.lat}, ${marker.position.lng}`;
       const params = {
         latlng,
-        key: apiKey,
+        key: import.meta.env.VITE_API_KEY,
       };
 
       const response = await api.get('https://maps.googleapis.com/maps/api/geocode/json', { params });

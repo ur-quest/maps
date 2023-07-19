@@ -2,8 +2,6 @@
     <div class="index-page">
       <SearchComponents/>
       <MapComponent
-        :map="map"
-        :markers="[currentMarker]"
         @on-map-click="onMapClick"
       />
     </div>

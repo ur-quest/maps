@@ -21,7 +21,13 @@
       :icon="{ url: searchLocation.icon, scaledSize: { width: 50, height:  50}}"
       :clickable="searchLocation.clickable"
       :draggable="searchLocation.draggable"
-    />
+    >
+      <GMapInfoWindow :opened="true">
+        <div>
+            {{ searchLocation.address?.formatted_address }}
+        </div>
+      </GMapInfoWindow>
+    </GMapMarker>
   </GMapMap>
 </template>
 
@@ -37,7 +43,7 @@ const {
   center, zoom, options, typeId,
 } = storeToRefs(mapStore);
 
-const { currentLocation = null, searchLocation = null } = storeToRefs(locationsStore);
+const { currentLocation, searchLocation } = storeToRefs(locationsStore);
 </script>
 
 <style lang="scss" scoped>

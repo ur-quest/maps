@@ -8,6 +8,7 @@
             bg-color="dark"
             label-color="primary"
             label="Введите адрес"
+            @update:searchInput="onUpdate"
         >
             <template v-slot:prepend>
                 <q-icon name="place" color="primary"/>
@@ -18,7 +19,7 @@
                     name="close"
                     color="primary"
                     class="cursor-pointer"
-                    @click="text = ''"
+                    @click="onClear"
                 />
             </template>
         </q-input>
@@ -29,6 +30,14 @@
 import { ref } from 'vue';
 
 const searchInput = ref('');
+
+function onUpdate(value) {
+  console.log(value);
+}
+
+function onClear() {
+  searchInput.value = '';
+}
 </script>
 
 <style lang="scss" scoped>
